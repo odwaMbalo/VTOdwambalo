@@ -28,7 +28,6 @@ namespace BankServices.Services.Repository
                     ClientId = Guid.NewGuid(),
                     FirstName = client.FirstName,
                     LastName = client.LastName,
-                    Level = 1,
                     JoinDate = DateTime.Now
                 };
 

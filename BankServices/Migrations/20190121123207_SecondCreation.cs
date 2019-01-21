@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BankServices.Migrations
 {
-    public partial class FirstCreation : Migration
+    public partial class SecondCreation : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -15,7 +15,6 @@ namespace BankServices.Migrations
                     ClientId = table.Column<Guid>(nullable: false),
                     FirstName = table.Column<string>(maxLength: 100, nullable: false),
                     LastName = table.Column<string>(maxLength: 100, nullable: false),
-                    Level = table.Column<byte>(nullable: false),
                     JoinDate = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>

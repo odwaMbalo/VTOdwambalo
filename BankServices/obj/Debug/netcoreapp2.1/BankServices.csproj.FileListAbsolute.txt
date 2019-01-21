@@ -8,7 +8,6 @@ C:\Users\odwam\source\repos\BankServices\BankServices\bin\Debug\netcoreapp2.1\Ba
 C:\Users\odwam\source\repos\BankServices\BankServices\bin\Debug\netcoreapp2.1\BankServices.runtimeconfig.dev.json
 C:\Users\odwam\source\repos\BankServices\BankServices\bin\Debug\netcoreapp2.1\BankServices.dll
 C:\Users\odwam\source\repos\BankServices\BankServices\bin\Debug\netcoreapp2.1\BankServices.pdb
-C:\Users\odwam\source\repos\BankServices\BankServices\obj\Debug\netcoreapp2.1\BankServices.csprojAssemblyReference.cache
 C:\Users\odwam\source\repos\BankServices\BankServices\obj\Debug\netcoreapp2.1\BankServices.RazorTargetAssemblyInfo.cache
 C:\Users\odwam\source\repos\BankServices\BankServices\obj\Debug\netcoreapp2.1\BankServices.dll
 C:\Users\odwam\source\repos\BankServices\BankServices\obj\Debug\netcoreapp2.1\BankServices.pdb

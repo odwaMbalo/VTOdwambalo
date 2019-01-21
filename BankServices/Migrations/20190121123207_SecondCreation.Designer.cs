@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BankServices.Migrations
 {
     [DbContext(typeof(ClientContext))]
-    [Migration("20190121103115_FirstCreation")]
-    partial class FirstCreation
+    [Migration("20190121123207_SecondCreation")]
+    partial class SecondCreation
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -55,8 +55,6 @@ namespace BankServices.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100);
-
-                    b.Property<byte>("Level");
 
                     b.HasKey("ClientId");
 

@@ -54,8 +54,6 @@ namespace BankServices.Migrations
                         .IsRequired()
                         .HasMaxLength(100);
 
-                    b.Property<byte>("Level");
-
                     b.HasKey("ClientId");
 
                     b.ToTable("Clients");
