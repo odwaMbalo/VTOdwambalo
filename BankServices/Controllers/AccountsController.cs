@@ -122,9 +122,9 @@ namespace BankServices.Controllers
             }
 
             
-            await _accountRepository.CreateAccounts(ClientId);
+            var acc = await _accountRepository.CreateAccounts(ClientId);
            
-            return CreatedAtAction("GetAccounts", new { id = ClientId }, ClientId);
+            return CreatedAtAction("GetAccounts", acc, acc);
         }
 
         [HttpDelete("{id}")]

@@ -17,14 +17,25 @@ namespace Tests
     {
         private IAccountRepository _accountRepository { get; set; }
         private IClientRepository _clientRepository { get; set; }
+        private IAccountOperationRepository _iaccoutOperationRepository { get; set; }
         private string clientId { get; set; }
 
         private ClientsController clientControllor { get; set; }
         private AccountsController accountController { get; set; }
+        private DepositController depositController { get; set; }
+        private WithdrawalController withdrawalController { get; set; }
         [SetUp]
         public void Setup()
         {
             _clientRepository = new ClientRepository(new IConfigurationMock());
+            _accountRepository = new AccountRepository(new IConfigurationMock());
+            _iaccoutOperationRepository = new AccountOperationRepository(new IConfigurationMock());
+
+            accountController = new AccountsController(_accountRepository, _clientRepository);
+            depositController = new DepositController(_iaccoutOperationRepository);
+            withdrawalController = new WithdrawalController(_iaccoutOperationRepository);
+
+
         }
 
         [Test]
@@ -47,18 +58,23 @@ namespace Tests
         {
             var clients = await clientControllor.GetAllClient();
             Assert.True(clients.Count > 0);
+            int max = clients.Count - 1;
 
-            clientId = clients[0].ClientId.ToString();
+            int index = rand.Next(0,max);
+            clientId = clients[index].ClientId.ToString();
             Assert.IsNotNull(clientId);
-
         }
+
         [Test]
         public async Task GetClientById()
         {
             var clients = await clientControllor.GetAllClient();
             Assert.True(clients.Count > 0);
+            int max = clients.Count - 1;
 
-            clientId = clients[0].ClientId.ToString();
+            int index = rand.Next(0, max);
+
+            clientId = clients[index].ClientId.ToString();
             var client = await clientControllor.GetAllClient(clientId);
             Assert.IsInstanceOf(typeof(OkObjectResult), client);
             
@@ -76,10 +92,10 @@ namespace Tests
         {
             var clients = await clientControllor.GetAllClient();
             Assert.True(clients.Count > 0);
+            int max = clients.Count - 1;
+            int index = rand.Next(0, max);
 
-            clientId = clients[0].ClientId.ToString();
-            _accountRepository = new AccountRepository(new IConfigurationMock());
-            accountController = new AccountsController(_accountRepository,_clientRepository);
+            clientId = clients[index].ClientId.ToString();
             var creationResult = await accountController.CreateAccounts(clientId);
             Assert.IsInstanceOf(typeof(CreatedAtActionResult), creationResult);
         }
@@ -98,14 +114,20 @@ namespace Tests
             List<Accounts> acounts = await accountController.GetAccounts();
             Assert.IsTrue(acounts.Count>0);
         }
-
+        private Random rand = new Random();
         [Test]
         public async Task GetClientAccountsByClientId()
         {
             var clients = await clientControllor.GetAllClient();
             Assert.True(clients.Count > 0);
+            int max = clients.Count - 1;
+            int index = rand.Next(0, max);
 
-            clientId = clients[0].ClientId.ToString();
+            clientId = clients[index].ClientId.ToString();
+            
+            var creationResult = await accountController.CreateAccounts(clientId);
+            Assert.IsInstanceOf(typeof(CreatedAtActionResult), creationResult);
+
             var acounts = await accountController.GetClientAccount(clientId);
             Assert.IsInstanceOf(typeof(OkObjectResult), acounts);
         }
@@ -116,6 +138,53 @@ namespace Tests
             var id = "000000000000000000000000";
             var acounts = await accountController.GetClientAccount(id);
             Assert.IsInstanceOf(typeof(NotFoundResult), acounts);
+        }
+
+        [Test]
+        public async Task DepositFund()
+        {
+            var clients = await clientControllor.GetAllClient();
+            Assert.True(clients.Count > 0);
+            int max = clients.Count - 1;
+            int index = rand.Next(0, max);
+
+            clientId = clients[index].ClientId.ToString();
+
+            var creationResult = await accountController.CreateAccounts(clientId);
+            Assert.IsInstanceOf(typeof(CreatedAtActionResult), creationResult);
+            var accountToDeposit = (creationResult as CreatedAtActionResult).Value as Accounts;
+            
+            var deposits = await depositController.DepositFunds(accountToDeposit.AccountNumber,823.5);
+            Assert.IsInstanceOf(typeof(OkObjectResult), deposits);
+
+            var accountToDeposited = (deposits as OkObjectResult).Value as Accounts;
+            Assert.IsTrue(accountToDeposited.Balance==823.5);
+        }
+
+        [Test]
+        public async Task WithDrawFund()
+        {
+            var clients = await clientControllor.GetAllClient();
+            Assert.True(clients.Count > 0);
+            int max = clients.Count - 1;
+            int index = rand.Next(0, max);
+
+            clientId = clients[index].ClientId.ToString();
+
+            var creationResult = await accountController.CreateAccounts(clientId);
+            Assert.IsInstanceOf(typeof(CreatedAtActionResult), creationResult);
+            var accountToDeposit = (creationResult as CreatedAtActionResult).Value as Accounts;
+
+            var deposits = await depositController.DepositFunds(accountToDeposit.AccountNumber, 823.5);
+            Assert.IsInstanceOf(typeof(OkObjectResult), deposits);
+
+            var accountToDeposited = (deposits as OkObjectResult).Value as Accounts;
+            Assert.IsTrue(accountToDeposited.Balance == 823.5);
+
+            var withdraw = await withdrawalController.WithDrawFunds(accountToDeposited.AccountNumber,23.00);
+            Assert.IsInstanceOf(typeof(OkObjectResult), withdraw);
+            var accountToWithdraw = (withdraw as OkObjectResult).Value as Accounts;
+            Assert.IsTrue(accountToWithdraw.Balance==800.5);
         }
 
         public string GeneratRandomAlphabets()

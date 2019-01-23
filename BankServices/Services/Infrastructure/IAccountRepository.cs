@@ -14,7 +14,7 @@ namespace BankServices.Services.Infrastructure
         Task<IAsyncCursor<Accounts>> GetAccounts(string id);
         Task<Accounts> GetAccounts(string ClientId, string AccountNumbers);
         Task<List<Accounts>> GetClientAccount(string ClientId);
-        Task CreateAccounts(string ClientId);
+        Task<Accounts> CreateAccounts(string ClientId);
         Task EditAccounts(Accounts accounts);
         Task DeleteAccounts(Accounts accounts);
         Task<bool> AccountsExists(string id);

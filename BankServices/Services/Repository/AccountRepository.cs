@@ -51,7 +51,7 @@ namespace BankServices.Services.Repository
             await _accounts.InsertOneAsync(accounts); 
         }
 
-        public async Task CreateAccounts(string ClientId)
+        public async Task<Accounts> CreateAccounts(string ClientId)
         {
             var accounts = new Accounts
             {
@@ -60,7 +60,8 @@ namespace BankServices.Services.Repository
                 OpenDate = DateTime.Now,
                 ClientId = new ObjectId(ClientId)
             };
-             await _accounts.InsertOneAsync(accounts); ;
+             await _accounts.InsertOneAsync(accounts);
+            return accounts;
         }
 
         public async Task DeleteAccounts(Accounts accounts)
