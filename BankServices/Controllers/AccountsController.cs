@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BankServices.Models;
 using BankServices.Services.Infrastructure;
+using MongoDB.Driver;
 
 namespace BankServices.Controllers
 {
@@ -24,29 +25,29 @@ namespace BankServices.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Accounts> GetAccounts()
+        public async Task<List<Accounts>> GetAccounts()
         {
-            return _accountRepository.GetAccounts();
+            return await _accountRepository.GetAccounts();
         }
 
         [HttpGet("{ClientId}")]
-        public async Task<IActionResult> GetAccounts([FromRoute] Guid ClientId)
+        public async Task<IActionResult> GetClientAccount([FromRoute] string ClientId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            var accounts = await _accountRepository.GetAccounts(ClientId);
-            if (accounts == null)
+            var accounts = await _accountRepository.GetClientAccount(ClientId);
+           
+            if (accounts == null || accounts.Count<=0)
             {
                 return NotFound();
             }
             return Ok(accounts);
         }
 
-        [HttpGet("{ClientId}/{id}")]
-        public async Task<IActionResult> GetAccounts([FromRoute] Guid ClientId, [FromRoute]string id)
+        [HttpGet("{ClientId}/{AccountNumber}")]
+        public async Task<IActionResult> GetAccounts([FromRoute] string ClientId, [FromRoute]string AccountNumber)
         {
 
             if (!ModelState.IsValid)
@@ -54,7 +55,7 @@ namespace BankServices.Controllers
                 return BadRequest(ModelState);
             }
 
-            var accounts = await _accountRepository.GetAccounts(ClientId, id);
+            var accounts = await _accountRepository.GetAccounts(ClientId, AccountNumber);
 
             if (accounts == null)
             {
@@ -88,7 +89,7 @@ namespace BankServices.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_accountRepository.AccountsExists(id))
+                if (!await _accountRepository.AccountsExists(id))
                 {
                     return NotFound();
                 }
@@ -102,14 +103,14 @@ namespace BankServices.Controllers
         }
 
         [HttpPost("{ClientId}")]
-        public async Task<IActionResult> CreateAccounts([FromRoute] Guid ClientId)
+        public async Task<IActionResult> CreateAccounts([FromRoute] string ClientId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var client = await _clientRepository.GetAllClients(ClientId);
+            var client = await _clientRepository.GetClients(ClientId);
             if (client==null)
             {
                 var msgs = new
@@ -127,7 +128,7 @@ namespace BankServices.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAccounts([FromRoute] int id)
+        public async Task<IActionResult> DeleteAccounts([FromRoute] String id)
         {
             if (!ModelState.IsValid)
             {
@@ -140,7 +141,7 @@ namespace BankServices.Controllers
                 return NotFound();
             }
 
-            await _accountRepository.DeleteAccounts(accounts);
+            await _accountRepository.DeleteAccounts((Accounts)accounts);
 
             return Ok(accounts);
         }

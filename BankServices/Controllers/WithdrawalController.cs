@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BankServices.Models;
 using BankServices.Services.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +25,7 @@ namespace BankServices.Controllers
             {
                 return BadRequest(new { Message = "Failed to withdraw funds, the account does not exitis" });
             }
-            await _iaccountOperationRepository.Withdrawfunds(acount, WithdrawalAmount);
+            await _iaccountOperationRepository.Withdrawfunds((Accounts)acount, WithdrawalAmount);
             return Ok(acount);
         }
     }

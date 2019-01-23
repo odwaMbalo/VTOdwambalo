@@ -20,7 +20,7 @@ namespace BankServices
         public void ConfigureServices(IServiceCollection services)
         {
             
-            services.AddDbContext<ClientContext>(options=>options.UseSqlServer(Configuration["ConnectionString:DefaultConnection"]), ServiceLifetime.Singleton);
+            //services.AddDbContext<ClientContext>(options=>options.UseSqlServer(Configuration["ConnectionString:DefaultConnection"]), ServiceLifetime.Singleton);
             services.AddSingleton<IClientRepository, ClientRepository>();
             services.AddSingleton<IAccountRepository, AccountRepository>();
             services.AddSingleton<IAccountOperationRepository, AccountOperationRepository>();

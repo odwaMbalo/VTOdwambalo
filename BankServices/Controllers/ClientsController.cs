@@ -5,38 +5,50 @@ using System.Threading.Tasks;
 using BankServices.Models;
 using BankServices.Services.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace BankServices.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ClientsController : ControllerBase
+    public class ClientsController : Controller
     {
         public readonly IClientRepository _iclientRepository;
+        public readonly IAccountRepository _accountRepository;
 
-        public ClientsController(IClientRepository iclientRepository)
+        public ClientsController(IClientRepository iclientRepository,IAccountRepository accountRepository)
         {
             _iclientRepository = iclientRepository;
+            _accountRepository = accountRepository;
         }
         // GET api/values
         [HttpGet]
-        public List<Client> GetAllClient()
+        public async Task<List<Client>> GetAllClient()
         {
-            var client = _iclientRepository.GetAllClients();
+            var client = await _iclientRepository.GetAllClients();
             return client;
         }
 
         [HttpGet("{ClientId}")]
-        public async Task<Client> GetAllClient([FromRoute] Guid ClientId)
+        public async Task<IActionResult> GetAllClient([FromRoute] string ClientId)
         {
-            var client = await _iclientRepository.GetAllClients(ClientId);
-            return client;
+            var objectClientId = new ObjectId(ClientId);
+            var client = await _iclientRepository.GetClients(ClientId);
+            if (client==null)
+            {
+                return BadRequest(new { massage="Client with that id does not exist"});
+            }
+            return Ok(client);
         }
 
         [HttpPost]
-        public void CreateClient([FromBody]Client client)
+        public IActionResult CreateClient([FromBody]Client client)
         {
             _iclientRepository.CreateClient(client);
+            return Ok(client);
         }
+
+
     }
 }

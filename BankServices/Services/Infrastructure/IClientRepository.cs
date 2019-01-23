@@ -1,4 +1,5 @@
 ﻿using BankServices.Models;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,8 @@ namespace BankServices.Services.Infrastructure
 {
     public interface IClientRepository
     {
-        List<Client> GetAllClients();
-        Task<Client> GetAllClients(Guid ClientId);
-        void CreateClient(Client client);
+        Task<List<Client>> GetAllClients();
+        Task<Client> GetClients(string ClientId);
+        Task CreateClient(Client client);
     }
 }

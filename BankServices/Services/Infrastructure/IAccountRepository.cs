@@ -1,5 +1,6 @@
 ﻿using BankServices.Models;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,13 @@ namespace BankServices.Services.Infrastructure
 {
     public interface IAccountRepository
     {
-        IEnumerable<Accounts> GetAccounts();
-        Task<Accounts> GetAccounts(int id);
-        Task<Accounts> GetAccounts(Guid ClientId, string id);
-        Task<List<Accounts>> GetAccounts(Guid ClientId);
-        Task CreateAccounts(Guid ClientId);
+        Task<List<Accounts>> GetAccounts();
+        Task<IAsyncCursor<Accounts>> GetAccounts(string id);
+        Task<Accounts> GetAccounts(string ClientId, string AccountNumbers);
+        Task<List<Accounts>> GetClientAccount(string ClientId);
+        Task CreateAccounts(string ClientId);
         Task EditAccounts(Accounts accounts);
         Task DeleteAccounts(Accounts accounts);
-        bool AccountsExists(string id);
+        Task<bool> AccountsExists(string id);
     }
 }

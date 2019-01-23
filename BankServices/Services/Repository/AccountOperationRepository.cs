@@ -1,5 +1,8 @@
 ﻿using BankServices.Models;
 using BankServices.Services.Infrastructure;
+using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,24 +10,26 @@ using System.Threading.Tasks;
 
 namespace BankServices.Services.Repository
 {
-    public class AccountOperationRepository : IAccountOperationRepository
+    public class AccountOperationRepository : BaseRepository, IAccountOperationRepository
     {
-        private readonly ClientContext _clientContext;
 
-        public AccountOperationRepository(ClientContext clientContext)
+        private readonly IMongoCollection<Accounts> _accounts;
+        public AccountOperationRepository(IConfiguration config) : base(config)
         {
-            _clientContext = clientContext;
+            _accounts = database.GetCollection<Accounts>("Accounts");
         }
-        public async Task Depositfunds(Accounts Account,double DepositAmount)
+       
+        public async Task Depositfunds(Accounts account,double DepositAmount)
         {
-            double tempBalance = Account.Balance + DepositAmount;
-            Account.Balance = tempBalance;
-            await _clientContext.SaveChangesAsync();
+            double tempBalance = account.Balance + DepositAmount;
+            account.Balance = tempBalance;
+            var accountNum = account.AccountNumber;
+            var updoneresult = await _accounts.ReplaceOneAsync<Accounts>(acc => acc.AccountNumber == accountNum, account);
         }
 
         public async Task<Accounts> GetAccount(string AccountNumber)
         {
-            var account = await _clientContext.Accounts.FindAsync(AccountNumber);
+            var account = await _accounts.Find(acc=>acc.AccountNumber== AccountNumber).FirstOrDefaultAsync();
             return account;
         }
 
@@ -32,7 +37,8 @@ namespace BankServices.Services.Repository
         {
             double tempBalance = Account.Balance - WithDrawalAmount;
             Account.Balance = tempBalance;
-            await _clientContext.SaveChangesAsync();
+            var accountNum = Account.AccountNumber;
+            var updoneresult = await _accounts.ReplaceOneAsync<Accounts>(acc => acc.AccountNumber == accountNum, Account);
         }
     }
 }

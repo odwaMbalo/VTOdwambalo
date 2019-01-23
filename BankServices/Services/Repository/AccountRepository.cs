@@ -3,6 +3,9 @@ using BankServices.Services.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,67 +13,67 @@ using System.Threading.Tasks;
 
 namespace BankServices.Services.Repository
 {
-    public class AccountRepository: IAccountRepository
+    public class AccountRepository: BaseRepository, IAccountRepository
     {
-        private readonly ClientContext _clientcontext;
-        
-        public AccountRepository(ClientContext clientcontext)
+        private readonly IMongoCollection<Accounts> _accounts;
+        public AccountRepository(IConfiguration config):base(config)
         {
-            _clientcontext = clientcontext;
+            _accounts = database.GetCollection<Accounts>("Accounts");
         }
 
-        public IEnumerable<Accounts> GetAccounts()
+        public async Task<List<Accounts>> GetAccounts()
         {
-            return _clientcontext.Accounts;
+            return await _accounts.Find(account=>true).ToListAsync();
         }
 
-        public async Task<Accounts> GetAccounts(int id)
+        public async Task<IAsyncCursor<Accounts>> GetAccounts(string id)
         {
-            var accounts = await _clientcontext.Accounts.FindAsync(id);
+            //var docId = new ObjectId(id);
+            var accounts = await _accounts.FindAsync<Accounts>(id);
             return accounts;
         }
 
-        public async Task<Accounts> GetAccounts(Guid ClientId,string id)
+        public async Task<Accounts> GetAccounts(string ClientId,string AccountNumber)
         {
-            var accounts = await _clientcontext.Accounts.FirstOrDefaultAsync(c=>c.ClientId==ClientId && c.AccountNumber==id);
+            var clientObjectId = new ObjectId(ClientId);
+            var accounts = await _accounts.Find(acc => acc.ClientId == clientObjectId && acc.AccountNumber == AccountNumber).FirstOrDefaultAsync();
             return accounts;
         }
 
-        public async Task<List<Accounts>> GetAccounts(Guid ClientId)
+        public async Task<List<Accounts>> GetClientAccount(string ClientId)
         {
-            var accounts = await _clientcontext.Accounts.Where(c => c.ClientId == ClientId).ToListAsync();
-            return accounts;
+            var clientObjectId = new ObjectId(ClientId);
+            var account = await _accounts.Find(acc => acc.ClientId == clientObjectId).ToListAsync();
+            return account;
         }
         public async Task EditAccounts(Accounts accounts)
         {
-            _clientcontext.Accounts.Add(accounts);
-            await _clientcontext.SaveChangesAsync();   
+            await _accounts.InsertOneAsync(accounts); 
         }
 
-        public async Task CreateAccounts(Guid ClientId)
+        public async Task CreateAccounts(string ClientId)
         {
             var accounts = new Accounts
             {
                 AccountNumber = GenerateAccountNumber(),
                 CardNumber = GenerateCardNumber(),
                 OpenDate = DateTime.Now,
-                ClientId = ClientId
+                ClientId = new ObjectId(ClientId)
             };
-             _clientcontext.Accounts.Add(accounts);
-             await _clientcontext.SaveChangesAsync();
+             await _accounts.InsertOneAsync(accounts); ;
         }
 
         public async Task DeleteAccounts(Accounts accounts)
         {
-            _clientcontext.Accounts.Remove(accounts);
-            await _clientcontext.SaveChangesAsync();
+           await _accounts.InsertOneAsync(accounts);
         }
 
-        public bool AccountsExists(string id)
+        public async Task<bool> AccountsExists(string id)
         {
-            return _clientcontext.Accounts.Any(e => e.AccountNumber.Equals(id));
+           var account=  await _accounts.FindAsync<Accounts>(acc => acc.AccountNumber == id);
+            return account!=null;
         }
-
+    
         public string GenerateAccountNumber()
         {
             Random rnd = new Random();
