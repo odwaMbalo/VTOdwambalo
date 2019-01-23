@@ -9,6 +9,7 @@ using BankUnitTest;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Tests
 {
@@ -27,14 +28,14 @@ namespace Tests
         }
 
         [Test]
-        public void CreatClient()
+        public async Task CreatClient()
         {
 
              clientControllor = new ClientsController(_clientRepository, _accountRepository);
-             var createdClient = clientControllor.CreateClient(
+             var createdClient = await clientControllor.CreateClient(
                 new Client {
-                    FirstName  = "Odwa",
-                    LastName = "MMM",
+                    FirstName  = GeneratRandomAlphabets(),
+                    LastName = GeneratRandomAlphabets(),
                     JoinDate = DateTime.Now,
                 });
 
@@ -54,6 +55,10 @@ namespace Tests
         [Test]
         public async Task GetClientById()
         {
+            var clients = await clientControllor.GetAllClient();
+            Assert.True(clients.Count > 0);
+
+            clientId = clients[0].ClientId.ToString();
             var client = await clientControllor.GetAllClient(clientId);
             Assert.IsInstanceOf(typeof(OkObjectResult), client);
             
@@ -69,10 +74,13 @@ namespace Tests
         [Test]
         public async Task CreatClientAccount()
         {
-            var id = "5c4722c8b86c763b603074a1";
+            var clients = await clientControllor.GetAllClient();
+            Assert.True(clients.Count > 0);
+
+            clientId = clients[0].ClientId.ToString();
             _accountRepository = new AccountRepository(new IConfigurationMock());
             accountController = new AccountsController(_accountRepository,_clientRepository);
-            var creationResult = await accountController.CreateAccounts(id);
+            var creationResult = await accountController.CreateAccounts(clientId);
             Assert.IsInstanceOf(typeof(CreatedAtActionResult), creationResult);
         }
 
@@ -94,8 +102,11 @@ namespace Tests
         [Test]
         public async Task GetClientAccountsByClientId()
         {
-            string id = "5c47075c872c064578787fea";
-            var acounts = await accountController.GetClientAccount(id);
+            var clients = await clientControllor.GetAllClient();
+            Assert.True(clients.Count > 0);
+
+            clientId = clients[0].ClientId.ToString();
+            var acounts = await accountController.GetClientAccount(clientId);
             Assert.IsInstanceOf(typeof(OkObjectResult), acounts);
         }
 
@@ -106,5 +117,13 @@ namespace Tests
             var acounts = await accountController.GetClientAccount(id);
             Assert.IsInstanceOf(typeof(NotFoundResult), acounts);
         }
+
+        public string GeneratRandomAlphabets()
+        {
+            Random random = new Random();
+            var chars = "abcdefghijklmnopqrstuvwxyz";
+            return new string(chars.Select(c => chars[random.Next(chars.Length)]).Take(8).ToArray());
+        }
     }
 }
+

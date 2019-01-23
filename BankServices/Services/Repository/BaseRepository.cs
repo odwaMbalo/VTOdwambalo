@@ -15,7 +15,8 @@ namespace BankServices.Services.Repository
         public IMongoDatabase database;
         public BaseRepository(IConfiguration config)
         {
-            var values = config["ClientDb"];
+            var value = config["connectionString:ClientDb"];
+            //var connectionstring = config.GetValue<string>("connectionString:ClientDb");
             client = new MongoClient("mongodb://localhost:27017");
             database = client.GetDatabase("ClientDb");
         }

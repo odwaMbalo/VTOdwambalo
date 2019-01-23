@@ -25,8 +25,14 @@ namespace BankUnitTest
         {
             get
             {
+                switch (key) {
+                    case "connectionString:ClientDb":
+                        return "mongodb://localhost:27017";
+                    default:
+                        return "mongodb://localhost:27017";
+                }
 
-                return "mongodb://localhost:27017";
+                //return "mongodb://localhost:27017";
             }
             set
             {
@@ -35,6 +41,7 @@ namespace BankUnitTest
             }
         }
 
+        
         public IEnumerable<IConfigurationSection> GetChildren()
         {
             throw new NotImplementedException();

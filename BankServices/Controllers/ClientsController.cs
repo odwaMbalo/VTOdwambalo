@@ -43,9 +43,9 @@ namespace BankServices.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateClient([FromBody]Client client)
+        public async Task<IActionResult> CreateClient([FromBody]Client client)
         {
-            _iclientRepository.CreateClient(client);
+            await _iclientRepository.CreateClient(client);
             return Ok(client);
         }
 
